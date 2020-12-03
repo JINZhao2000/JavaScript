@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        div {
+            display: inline-block;
+            border: solid 2px black;
+            width: 400px;
+            height: 200px;
+            align-self: auto;
+            vertical-align: text-top;
+            text-align: center;
+        }
+        ul li {
+            margin: 0px 40px 10px 0px;
+            padding: 10px;
+            list-style: none;
+            
+        }
+        li {
+            border: solid 2px black;
+            text-align: right;
+        }
+        span {
+            float: left;
+            
+        }
+        .plusSpan {
+            background-color: aqua;
+            padding: 2px;
+            margin: 5px;
+        }
+        a {
+            text-decoration: none;
+            margin: 10px;
+            padding: 6px 9px;
+            border-radius: 2px;
+            background-color: green;            
+        }
+        #count {
+            line-height: 100px;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <ul>
+            <li><span>php</span><a href="javascript:;">+</a></li>
+            <li><span>java</span><a href="javascript:;">+</a></li>
+            <li><span>javascript</span><a href="javascript:;">+</a></li>
+        </ul>
+    </div>
+    <div>
+        <strong id="count">selected 0 languages</strong>
+        <p id="lists"></p>
+    </div>
+</body>
+<script>
+    class Selection{
+        constructor(){
+            this.lists = document.querySelectorAll('ul>li');
+            this.countElem = document.getElementById('count');
+            this.listElem = document.getElementById('lists');
+            this.map = new WeakMap();
+        }
+        run(){
+            this.lists.forEach(item=>{
+                item.querySelector('a').addEventListener('click',(event)=>{
+                    const a = event.target;
+                    const state = item.getAttribute("select");
+                    if(state){
+                        item.removeAttribute('select');
+                        this.map.delete(item);
+                        a.innerHTML = "+";
+                        a.style.padding = '6px 9px';
+                        a.style.backgroundColor = 'green';
+                    }else{
+                        this.map.set(item);
+                        item.setAttribute('select',true);
+                        a.innerHTML = "-";
+                        a.style.backgroundColor = 'red';
+                        a.style.padding = '6px 11.5px';
+                    }
+                    this.render();
+                });
+            });
+        }
+        count(){
+            return [...this.lists].reduce((count,lists)=>{
+                return (count += this.map.has(lists)?1:0);
+            },0);
+        }
+        list(){
+            return [...this.lists].filter(list=>{
+                return this.map.has(list);
+            }).map(list=>{
+                return `<span class="plusSpan">${list.querySelector('span').innerHTML}</span>`
+            }).join("");
+        }
+        render(){
+            this.countElem.innerHTML=`selected ${this.count()} languages`;
+            this.listElem.innerHTML = this.list();
+        }
+
+    }
+    new Selection().run();
+</script>
+</html>

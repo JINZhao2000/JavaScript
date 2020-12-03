@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>js02</title>
+    <style>
+        ul {
+            list-style: none;
+            width: 150px;
+            height: 150px;
+        }
+        li {
+            margin: 20px;
+            padding: 20px;
+        }
+        a {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 2px;
+            background-color: aqua;
+            align-items: flex-end;
+        }
+        .remove {
+            background-color: rgba(50, 50, 50, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <li>abc<a href="javascript:;">x</a></li>
+        <li>def<a href="javascript:;">x</a></li>
+        <li>ghi<a href="javascript:;">x</a></li>
+    </ul>
+</body>
+<script>
+    class Todo{
+        constructor(){
+            this.items = document.querySelectorAll('ul>li');
+            // console.log(this.items);
+            this.lists = new WeakSet();
+            this.items.forEach(item=>this.lists.add(item));
+            // console.log(this.lists);
+        }
+        run(){
+            this.addEvent();
+        }
+        addEvent(){
+            this.items.forEach(item=>{
+                let a = item.querySelector("a");
+                // console.log(a);
+                a.addEventListener('click',event=>{
+                    const parentElement = event.target.parentElement;
+                    // console.log(parentElement);
+                    if(this.lists.has(parentElement)){
+                        parentElement.classList.add("remove");
+                        this.lists.delete(parentElement);
+                    }else{
+                        parentElement.classList.remove("remove");
+                        this.lists.add(parentElement);
+                    }
+                })
+            })
+        }
+    }
+    new Todo().run();
+</script>
+</html>

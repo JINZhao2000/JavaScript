@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <form action="" onsubmit="return post()">
+        Accept the protocol:
+        <input type="checkbox" name="agreement" error="Please accept this protocol"/>
+        I'm a student
+        <input type="checkbox" name="student" error="Only for student"/>
+        <input type="submit" value="ok"/>
+    </form>
+</body>
+<script>
+    function post(){
+        let mp = new Map();
+        let inputs = document.querySelectorAll("[error]");
+        // console.log(inputs);
+        inputs.forEach(item=>{
+            mp.set(item,{
+                error: item.getAttribute('error'),
+                status: item.checked
+            });
+        });
+        return [...mp].every(([elem,config])=>{
+            config.status || alert(config.error)
+            return config.status;
+        });
+    }
+</script>
+</html>
