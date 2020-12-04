@@ -637,5 +637,57 @@
   // js01/js05.html
   ```
 
-  
 
+## 5. JavaScript 函数
+
+- 函数声明
+
+  ```js
+  let fun1 = new Function('title','console(title)');
+  fun1("a"); // "a"
+  function fun2(title){
+      console.log(title);
+  } // not recommented
+  fun2("a"); // "a"
+  let a = fun3(title){
+      console.log(title);
+  };
+  a("a"); // a
+  ```
+
+- this
+
+  - 普通函数（包括回调函数）this -> windows
+  - 方法，属性函数 this -> 父级对象
+  - lambda 表达式中 this -> 父级对象
+
+  ```js
+  {
+      ...
+      fun:function(){
+          ...
+          const self = this;
+          ...(function(){
+              self; // obj
+              this; // windows
+          });
+      },
+      ...
+  }
+  ```
+
+  - 改变 this
+
+    ```js
+    function User(name){
+        this.name = name;
+    }
+    let userA = new User("A"); // User{name: "A"}
+    let elem = {age: 12};
+    User.call(elem,"B"); // param1: this, param2-N: constructor
+    console.log(elem); // {age: 12, name: "B"}
+    User.apply(elem); // param1: this, param2: array
+    
+    ```
+
+  
