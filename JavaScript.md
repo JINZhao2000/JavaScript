@@ -657,7 +657,7 @@
 
 - this
 
-  - 普通函数（包括回调函数）this -> windows
+  - 普通函数（包括回调函数）this -> window
   - 方法，属性函数 this -> 父级对象
   - lambda 表达式中 this -> 父级对象
 
@@ -669,7 +669,7 @@
           const self = this;
           ...(function(){
               self; // obj
-              this; // windows
+              this; // window
           });
       },
       ...
@@ -687,7 +687,242 @@
     User.call(elem,"B"); // param1: this, param2-N: constructor
     console.log(elem); // {age: 12, name: "B"}
     User.apply(elem); // param1: this, param2: array
-    
+    // js01/js06.html
+    User.bind(elem); // not run immediately return new function
     ```
-
+  ```
+    
+  - bind
   
+    ```js
+    document.querySelector("...").addEventListener("...",function(event)=>{
+    	document.write(this.url+event.target.innerHTML); // this=>bind(obj)
+    }.bind({url: ...}));
+  ```
+
+## 6. JavaScript 作用域，闭包
+
+- 闭包的使用
+
+  ```js
+  function between(a, b){
+      return function(v){
+          return v>a && v<b;
+      };
+  }
+  arr.filter(between(1,4));
+  // js01/js07.html
+  ```
+
+## 7. JavaScript 面向对象
+
+- 对象使用
+
+  ```js
+  objs = [
+      {
+          title:"title1";
+          category:"category1";
+      },
+      {
+          title:"title2";
+          category:"category2";
+      },
+      {
+          title:"title3";
+          category:"category3";
+      }
+  ];
+  let res = objs.reduce((obj,curr,index)=>{
+      obj[`${curr["category"]}-${index+1}`] = curr;
+      return obj;
+  },{});
+  console.log(JSON.stringify(res,null,2));
+  Object.assign({...},{...});  // {...,...}
+  Object.keys(obj);
+  Object.values(obj);
+  Object.entries(obj);
+  for (const key in obj){
+      obj[key];
+  }
+  for (const iterator of Object.keys(obj)){}
+  for (const [key, value] of Object.entries(obj)){}
+  Object.assign({},obj); // copy
+  let nObj = {...obj}; // copy
+  function copy(obj){
+      let res = obj instanceof Array ? [] : {};
+      for (const [k,v] of Object.entries(obj)){
+          res[k] = (typeof v == "object" ? copy(v) : v);
+      }
+      return res;
+  } // deep copy
+  ```
+
+- Factory
+
+  ```js
+  function user(name, age){
+      return {
+          name:name,
+          age:age,
+          show: function(){
+              console.log(this.name+" is "+this.age);
+          }
+      };
+  }
+  ```
+
+- Constructor
+
+  ```js
+  function User(name){
+      this.name = name;
+      this.show = function(){
+          conosole.log(this.name); // this -> window
+      }
+  }
+  ```
+
+- 属性
+
+  ```js
+  obj.hasOwnProperty("...");
+  "a" in obj; // parent / self has the property
+  Object.getOwnPropertyDescriptor(obj, "field");
+  Object.getOwnPropertyDescriptors(obj);
+  Object.defineProperty(obj, "field", {
+      value: "",
+      writable: false,
+      enumerable: true,
+      configurable: false // ex : delete modify
+  });
+  Object.defineProperty(obj,{
+      name: {
+          value: "",
+          writable: false,
+          enumerable: true,
+          configurable: false
+      },
+      .... // other fields
+  });
+  Object.preventExtensions(obj); // Object.isExtensible(obj);
+  Object.seal(obj); // configurable -> false Object.isSealed(obj);
+  Object.freeze(obj); // writeable & configurable -> false
+  // Object.isFrozen(obj);
+  ```
+
+- 访问器
+
+  ```js
+  const user = {
+      data: {name: "A", age: 18},
+      set age(value){ // user.age
+          //condition
+          this.data.age = value;
+      },
+      get age(){return this.data.age;}
+  }; // can create pseudo field
+  // token
+  let Request = {
+      set token(content){
+          localStorage.setItem('token',content);
+      },
+      get token(){
+          let token = localStorage.setItem('token',content);
+          if(!token){
+              alert("Please sign in");
+          }
+          return token;
+      }
+  }
+  Request.token = "blablabla";
+  console.log(Request.token); // "blablabla"
+  // Priority : Accessor > Field
+  const DATA = Symbol();
+  const user = {
+      [DATA]: {name},
+      set name(value){
+          this.[DATA].name = value;
+      },
+      get name(){
+          return this.[DATA].name;
+      }
+  };
+  ```
+
+- Proxy
+
+  ```js
+  const user = {name: "A"};
+  const proxy = new Proxy(user,{
+      get(obj,property){
+          return obj.[property];
+      },
+      set(obj,property,value){
+      	obj[property] = value;
+          return true;
+      }
+  });
+  /* ---- */
+  function factorial(num){
+      return num==1 ? 1 : num*factorial(num-1);
+  }
+  let proxyF = new Proxy(factorial,{
+      apply(func, obj, args){
+          console.time('run');
+          func.apply(this, args);
+          console.timeEnd('run');
+      }
+  })
+  proxyF.apply({}, [1000]); // obj args
+  /* ---- */
+  // js01/js08.html
+  // js01/js09.html
+  ```
+
+- JSON
+
+  ```js
+  let user = {
+      name: "A",
+      age: 18
+  }
+  let json = JSON.stringify(user,null,2); // null(reserve all) or [field,field] alinea
+  JSON.parse(str);
+  obj{
+      toJSON: function(){
+          return {
+              ...;
+          }
+      }
+      
+  };
+  JSON.parse(obj,(k,v)=>{
+      return ...;
+  })
+  ```
+
+- 原型（实例化的对象继承构造函数的 prototype）
+
+  ```js
+  Object.getPrototypeOf(obj);
+  Object.create(param1,param2); // proto obj
+// Object -> Object.__proto__ + Object.prototype => null
+  // User(function) -> User.__proto__ + User.prototype => Object.prototype
+  // new User() function -> User.prototype
+  // {} -> Object.prototype
+  let parent = {};
+  let child = {};
+  Object.setPrototypeOf(child,parent);
+  User.prototype.constructor(function) == User; // true
+  User.prototype = {
+      constructor: User,
+      show(){}
+  };
+  const constructor = Object.getPrototypeOf(user1).constructor;
+  new constructor(args);
+  user1 instance of User; // has User in chain of prototype
+  ```
+  
+  
+

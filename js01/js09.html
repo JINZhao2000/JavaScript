@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        fieldset {
+            width: 200px;
+            text-align: center;
+        }
+        .error {
+            border: solid 10px red;
+        }
+    </style>
+</head>
+<body>
+    <fieldset>
+        <input type="text" validate rule="max:12,min:3"/><br/>
+        <input type="text" validate rule="max:3,isNumber"/>
+    </fieldset>
+</body>
+<script>
+    "use strict";
+    class Validate{
+        max(value, len){
+            return value.length <= len;
+        }
+        min(value, len){
+            return value.length >= len;
+        }
+        isNumber(value){
+            return /^\d+$/.test(value);
+        }
+    }
+    function ProxyFactory(target){
+        return new Proxy(target,{
+            get(target,key){
+                return target[key];
+            },
+            set(target,key,el){
+                const rule = el.getAttribute("rule");
+                const validate = new Validate();
+                let state = rule.split(",").every(rule=>{
+                    const info = rule.split(":");
+                    return validate[info[0]](el.value,info[1]);
+                });
+                el.classList[state ? "remove" : "add"]("error");
+                return true;
+            }
+        });
+    };
+    const proxy = ProxyFactory(document.querySelectorAll("[validate]"));
+    proxy.forEach((item,i) => {
+        item.addEventListener("keyup",function(){
+            proxy[i]=this;
+        });
+    });
+</script>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        button {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <button message="a">button1</button>
+    <button message="a">button2</button>
+</body>
+<script>
+    let btns = document.querySelectorAll('button');
+    btns.forEach((item)=>{
+        
+        let interval = false;
+        item.addEventListener("click",()=>{
+            if(!interval){
+                interval = true;
+                let left=1;
+                setInterval(()=>{
+                    item.style.left = left++ +"px";
+                },5);
+            }
+        });
+    });
+</script>
+</html>
